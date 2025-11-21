@@ -8,6 +8,12 @@ interface FileUploadProps {
 export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  
+  const corporateTheme = {
+    primary: '#09122B',
+    secondary: '#14B87C',
+    surface: '#F5F7FA',
+  };
 
   const handleDragOver = useCallback((e: React.DragEvent) => {
     e.preventDefault();
@@ -70,11 +76,21 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`relative group cursor-pointer transition-all duration-300 border-2 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center text-center bg-white shadow-sm hover:shadow-md ${
-          isDragging
-            ? 'border-indigo-500 bg-indigo-50'
-            : 'border-gray-300 hover:border-indigo-400'
-        }`}
+        className="relative group cursor-pointer transition-all duration-300 border-2 border-dashed rounded-2xl p-12 flex flex-col items-center justify-center text-center bg-white shadow-sm hover:shadow-md"
+        style={{
+          borderColor: isDragging ? corporateTheme.primary : '#d1d5db',
+          backgroundColor: isDragging ? corporateTheme.surface : 'white',
+        }}
+        onMouseEnter={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.borderColor = corporateTheme.primary + '80';
+          }
+        }}
+        onMouseLeave={(e) => {
+          if (!isDragging) {
+            e.currentTarget.style.borderColor = '#d1d5db';
+          }
+        }}
       >
         <input
           type="file"
@@ -83,7 +99,13 @@ export const FileUpload: React.FC<FileUploadProps> = ({ onFileSelect }) => {
           className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
         />
         
-        <div className={`p-4 rounded-full bg-indigo-100 text-indigo-600 mb-4 transition-transform duration-300 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}>
+        <div 
+          className={`p-4 rounded-full mb-4 transition-transform duration-300 ${isDragging ? 'scale-110' : 'group-hover:scale-110'}`}
+          style={{
+            backgroundColor: corporateTheme.surface,
+            color: corporateTheme.primary,
+          }}
+        >
           <FileUp size={32} />
         </div>
 

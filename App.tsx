@@ -5,9 +5,34 @@ import { FileUpload } from './components/FileUpload';
 import { LoadingScreen } from './components/LoadingScreen';
 import { Infographic } from './components/Infographic';
 import { SettingsPage } from './components/SettingsPage';
+import { Login } from './components/Login';
+import { ProsperaLogo } from './components/ProsperaLogo';
 import { Layout, ArrowLeft, Printer, Download, Settings, FileText, DollarSign, Briefcase } from 'lucide-react';
 
 const App: React.FC = () => {
+  // Check if we're in dev mode (authentication not required in dev)
+  const isDev = import.meta.env.DEV;
+  
+  // Authentication state - only check in production
+  const [isAuthenticated, setIsAuthenticated] = useState(() => {
+    if (isDev) return true; // Skip auth in dev
+    // Check sessionStorage for existing authentication
+    const auth = sessionStorage.getItem('authenticated');
+    const timestamp = sessionStorage.getItem('authTimestamp');
+    if (auth === 'true' && timestamp) {
+      // Check if session is less than 24 hours old
+      const hoursSinceAuth = (Date.now() - parseInt(timestamp)) / (1000 * 60 * 60);
+      if (hoursSinceAuth < 24) {
+        return true;
+      } else {
+        // Session expired, clear it
+        sessionStorage.removeItem('authenticated');
+        sessionStorage.removeItem('authTimestamp');
+      }
+    }
+    return false;
+  });
+
   const [state, setState] = useState<AppState>(AppState.UPLOAD);
   // Store previous state to return to it from settings
   const [previousState, setPreviousState] = useState<AppState>(AppState.UPLOAD);
@@ -87,19 +112,54 @@ const App: React.FC = () => {
     setState(previousState);
   };
 
+  const handleLogin = () => {
+    setIsAuthenticated(true);
+  };
+
   const TYPE_OPTIONS = [
     { id: 'informational', label: 'Informational', icon: FileText, desc: 'Facts, summaries & standard metrics' },
     { id: 'selling', label: 'Selling', icon: DollarSign, desc: 'Benefits, ROI & persuasive stats' },
     { id: 'project_wrapup', label: 'Project Wrapup', icon: Briefcase, desc: 'Outcomes, timelines & deliverables' },
   ];
 
+  // Show login page if not authenticated and not in dev mode
+  if (!isAuthenticated && !isDev) {
+    return <Login onLogin={handleLogin} />;
+  }
+
+  // Get theme colors
+  const getThemeColors = () => {
+    if (settings.theme === 'corporate') {
+      return {
+        primary: '#09122B',
+        secondary: '#14B87C',
+        surface: '#F5F7FA',
+        accent: '#DCE93B',
+        textMain: '#09122B',
+        textLight: '#B1B2C9',
+      };
+    }
+    // Default colors for other themes
+    return {
+      primary: '#4f46e5',
+      secondary: '#6366f1',
+      surface: '#f9fafb',
+      accent: '#818cf8',
+      textMain: '#1e1b4b',
+      textLight: '#c7d2fe',
+    };
+  };
+
+  const themeColors = getThemeColors();
+
   return (
-    <div className="min-h-screen flex flex-col">
+    <div className="min-h-screen flex flex-col" style={{ backgroundColor: themeColors.surface }}>
       {/* Navigation - Hidden in print */}
       <nav className="bg-white border-b border-gray-200 px-6 py-4 sticky top-0 z-50 no-print">
         <div className="max-w-5xl mx-auto flex items-center justify-between">
           <div 
-            className="flex items-center gap-2 text-indigo-600 cursor-pointer" 
+            className="flex items-center gap-2 cursor-pointer" 
+            style={{ color: themeColors.primary }}
             onClick={() => {
                 if (state === AppState.SETTINGS) closeSettings();
                 else if (state === AppState.RESULT) handleReset();
@@ -107,7 +167,7 @@ const App: React.FC = () => {
             }}
           >
             <Layout className="w-6 h-6" />
-            <span className="font-bold text-xl tracking-tight text-gray-900">Infographify</span>
+            <span className="font-bold text-xl tracking-tight" style={{ color: themeColors.textMain }}>Infographify</span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -121,7 +181,17 @@ const App: React.FC = () => {
                 </button>
                 <button 
                   onClick={handlePrint}
-                  className="flex items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+                  className="flex items-center gap-2 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
+                  style={{ 
+                    backgroundColor: themeColors.primary,
+                    color: 'white'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = settings.theme === 'corporate' ? '#0a1a3a' : themeColors.secondary;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = themeColors.primary;
+                  }}
                 >
                   <Printer size={16} />
                   <span className="hidden sm:inline">Print / Save PDF</span>
@@ -143,7 +213,7 @@ const App: React.FC = () => {
       </nav>
 
       {/* Main Content */}
-      <main className="flex-1 py-12 px-4 md:px-6 bg-gray-50/50">
+      <main className="flex-1 py-12 px-4 md:px-6" style={{ backgroundColor: themeColors.surface }}>
         <div className="max-w-5xl mx-auto w-full">
           
           {state === AppState.SETTINGS && (
@@ -157,10 +227,10 @@ const App: React.FC = () => {
           {state === AppState.UPLOAD && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] animate-fade-in-up">
               <div className="text-center mb-10 max-w-2xl">
-                <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4 tracking-tight">
-                  Turn PDFs into <span className={`text-${settings.theme === 'corporate' ? 'indigo' : settings.theme}-600 transition-colors duration-300`}>Visual Stories</span>
+                <h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight" style={{ color: themeColors.textMain }}>
+                  Turn PDFs into <span style={{ color: settings.theme === 'corporate' ? themeColors.secondary : themeColors.primary }} className="transition-colors duration-300">Visual Stories</span>
                 </h1>
-                <p className="text-xl text-gray-500">
+                <p className="text-xl" style={{ color: themeColors.textLight }}>
                   Select your infographic style and upload a document.
                 </p>
               </div>
@@ -174,17 +244,51 @@ const App: React.FC = () => {
                     <button
                       key={option.id}
                       onClick={() => setSelectedType(option.id as InfographicType)}
-                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 ${
-                        isSelected 
-                          ? 'border-indigo-500 bg-indigo-50 shadow-md' 
-                          : 'border-white bg-white hover:border-gray-200 shadow-sm'
+                      className={`flex flex-col items-center p-4 rounded-xl border-2 transition-all duration-200 shadow-sm ${
+                        isSelected ? 'shadow-md' : ''
                       }`}
+                      style={{
+                        borderColor: isSelected ? themeColors.primary : '#e5e7eb',
+                        backgroundColor: isSelected 
+                          ? (settings.theme === 'corporate' ? 'rgba(9, 18, 43, 0.05)' : 'rgba(79, 70, 229, 0.1)')
+                          : 'white',
+                      }}
+                      onMouseEnter={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = themeColors.textLight;
+                        }
+                      }}
+                      onMouseLeave={(e) => {
+                        if (!isSelected) {
+                          e.currentTarget.style.borderColor = '#e5e7eb';
+                        }
+                      }}
                     >
-                      <div className={`p-3 rounded-full mb-3 ${isSelected ? 'bg-indigo-100 text-indigo-600' : 'bg-gray-100 text-gray-500'}`}>
+                      <div 
+                        className="p-3 rounded-full mb-3"
+                        style={{
+                          backgroundColor: isSelected 
+                            ? (settings.theme === 'corporate' ? 'rgba(9, 18, 43, 0.1)' : 'rgba(79, 70, 229, 0.1)')
+                            : '#f3f4f6',
+                          color: isSelected ? themeColors.primary : themeColors.textLight,
+                        }}
+                      >
                         <Icon size={24} />
                       </div>
-                      <span className={`font-bold ${isSelected ? 'text-indigo-900' : 'text-gray-700'}`}>{option.label}</span>
-                      <span className="text-xs text-gray-500 text-center mt-1">{option.desc}</span>
+                      <span 
+                        className="font-bold"
+                        style={{ 
+                          color: isSelected ? themeColors.textMain : '#374151'
+                        }}
+                      >
+                        {option.label}
+                      </span>
+                      <span 
+                        className="text-xs text-center mt-1"
+                        style={{ color: themeColors.textLight }}
+                      >
+                        {option.desc}
+                      </span>
                     </button>
                   );
                 })}
@@ -193,12 +297,17 @@ const App: React.FC = () => {
               <FileUpload onFileSelect={handleFileSelect} />
               
               {/* Demo Tags */}
-              <div className="mt-12 flex gap-4 text-sm text-gray-400">
+              <div className="mt-12 flex gap-4 text-sm" style={{ color: themeColors.textLight }}>
                 <span>Research Papers</span>
                 <span>•</span>
                 <span>Annual Reports</span>
                 <span>•</span>
                 <span>Case Studies</span>
+              </div>
+              
+              {/* Prospera Logo */}
+              <div className="mt-16 mb-8">
+                <ProsperaLogo />
               </div>
             </div>
           )}

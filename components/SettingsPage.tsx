@@ -117,7 +117,7 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, onSave, on
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 md:p-8 border-b border-gray-100">
             <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-purple-50 rounded-lg text-purple-600">
+              <div className="p-2 rounded-lg" style={{ backgroundColor: '#09122B15', color: '#09122B' }}>
                 <Cpu size={24} />
               </div>
               <div>
@@ -132,9 +132,13 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, onSave, on
                   key={model.id}
                   className={`flex items-start gap-4 p-4 rounded-xl border-2 cursor-pointer transition-all ${
                     settings.model === model.id 
-                      ? 'border-purple-500 bg-purple-50/50' 
+                      ? '' 
                       : 'border-gray-100 hover:border-gray-200'
                   }`}
+                  style={settings.model === model.id ? {
+                    borderColor: '#09122B',
+                    backgroundColor: '#09122B0D'
+                  } : {}}
                 >
                   <div className="pt-1">
                     <input 
@@ -143,7 +147,10 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, onSave, on
                       value={model.id}
                       checked={settings.model === model.id}
                       onChange={() => handleChange('model', model.id)}
-                      className="w-5 h-5 text-purple-600 border-gray-300 focus:ring-purple-500"
+                      className="w-5 h-5 border-gray-300"
+                      style={{
+                        accentColor: '#09122B',
+                      }}
                     />
                   </div>
                   <div>

@@ -41,11 +41,30 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
     }
   };
 
+  const corporateTheme = {
+    primary: '#09122B',
+    secondary: '#14B87C',
+    surface: '#F5F7FA',
+  };
+
   return (
     <div 
-      className={`relative group rounded-lg transition-all duration-200 ${isEditing ? 'ring-2 ring-indigo-500 z-20' : 'hover:ring-2 hover:ring-indigo-300/50'} ${className}`}
-      onMouseEnter={() => setIsHovered(true)}
-      onMouseLeave={() => setIsHovered(false)}
+      className={`relative group rounded-lg transition-all duration-200 ${isEditing ? 'ring-2 z-20' : 'hover:ring-2'} ${className}`}
+      style={isEditing ? {
+        boxShadow: `0 0 0 2px ${corporateTheme.primary}`,
+      } : {}}
+      onMouseEnter={(e) => {
+        setIsHovered(true);
+        if (!isEditing) {
+          e.currentTarget.style.boxShadow = `0 0 0 2px ${corporateTheme.primary}50`;
+        }
+      }}
+      onMouseLeave={(e) => {
+        setIsHovered(false);
+        if (!isEditing) {
+          e.currentTarget.style.boxShadow = 'none';
+        }
+      }}
     >
       {/* Content */}
       <div className={isEditing ? 'opacity-50 blur-[1px] pointer-events-none' : ''}>
@@ -57,7 +76,14 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
         <div className="absolute -top-3 -right-3 z-10 animate-fade-in no-print">
           <button 
             onClick={() => setIsEditing(true)}
-            className="bg-indigo-600 text-white p-2 rounded-full shadow-lg hover:bg-indigo-700 hover:scale-110 transition-all"
+            className="text-white p-2 rounded-full shadow-lg hover:scale-110 transition-all"
+            style={{ backgroundColor: corporateTheme.primary }}
+            onMouseEnter={(e) => {
+              e.currentTarget.style.backgroundColor = '#0a1a3a';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = corporateTheme.primary;
+            }}
             title="AI Edit this section"
           >
             <Edit3 size={14} />
@@ -67,10 +93,13 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
 
       {/* Editing Popup */}
       {isEditing && (
-        <div className="absolute top-0 left-full ml-4 w-72 bg-white rounded-xl shadow-2xl border border-indigo-100 p-4 z-30 animate-fade-in-up no-print">
+        <div 
+          className="absolute top-0 left-full ml-4 w-72 bg-white rounded-xl shadow-2xl border p-4 z-30 animate-fade-in-up no-print"
+          style={{ borderColor: corporateTheme.surface }}
+        >
           <div className="flex justify-between items-center mb-3">
-            <h4 className="text-sm font-bold text-indigo-900 flex items-center gap-2">
-              <Sparkles size={14} className="text-indigo-500" />
+            <h4 className="text-sm font-bold flex items-center gap-2" style={{ color: corporateTheme.primary }}>
+              <Sparkles size={14} style={{ color: corporateTheme.primary }} />
               Edit with AI
             </h4>
             <button 
@@ -94,7 +123,18 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
             value={instruction}
             onChange={(e) => setInstruction(e.target.value)}
             placeholder="Instructions..."
-            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm mb-3 focus:ring-2 focus:ring-indigo-500 outline-none resize-none h-24"
+            className="w-full p-3 bg-gray-50 border border-gray-200 rounded-lg text-sm mb-3 focus:ring-2 outline-none resize-none h-24"
+            style={{
+              focusRingColor: corporateTheme.primary,
+            }}
+            onFocus={(e) => {
+              e.currentTarget.style.borderColor = corporateTheme.primary;
+              e.currentTarget.style.boxShadow = `0 0 0 2px ${corporateTheme.primary}20`;
+            }}
+            onBlur={(e) => {
+              e.currentTarget.style.borderColor = '#e5e7eb';
+              e.currentTarget.style.boxShadow = 'none';
+            }}
             disabled={isLoading}
             onKeyDown={(e) => {
               if (e.key === 'Enter' && !e.shiftKey) {
@@ -107,7 +147,16 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
           <button
             onClick={handleSubmit}
             disabled={isLoading || !instruction.trim()}
-            className="w-full py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+            className="w-full py-2 text-white rounded-lg text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed flex justify-center items-center gap-2"
+            style={{ backgroundColor: corporateTheme.primary }}
+            onMouseEnter={(e) => {
+              if (!isLoading && instruction.trim()) {
+                e.currentTarget.style.backgroundColor = '#0a1a3a';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.backgroundColor = corporateTheme.primary;
+            }}
           >
             {isLoading ? (
               <>
@@ -123,7 +172,10 @@ export const EditableSection: React.FC<EditableSectionProps> = ({
           </button>
           
           {/* Little triangle pointer pointing left to the content */}
-          <div className="absolute top-6 -left-2 w-4 h-4 bg-white transform rotate-45 border-l border-b border-indigo-100"></div>
+          <div 
+            className="absolute top-6 -left-2 w-4 h-4 bg-white transform rotate-45 border-l border-b"
+            style={{ borderColor: corporateTheme.surface }}
+          ></div>
         </div>
       )}
     </div>
