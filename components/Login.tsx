@@ -18,7 +18,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     // Simple authentication check
-    if (username === 'pwihoit' && password === 'Tlawruby12') {
+    if (username === 'pwilhoit' && password === 'Tlawruby12') {
       // Store authentication in sessionStorage
       sessionStorage.setItem('authenticated', 'true');
       sessionStorage.setItem('authTimestamp', Date.now().toString());
