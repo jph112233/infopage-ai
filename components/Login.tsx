@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Lock, User, AlertCircle } from 'lucide-react';
+import { ProsperaLogo } from './ProsperaLogo';
 
 interface LoginProps {
   onLogin: () => void;
@@ -38,7 +39,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4" style={{ backgroundColor: corporateTheme.surface }}>
+    <div className="min-h-screen flex flex-col items-center justify-center px-4" style={{ backgroundColor: corporateTheme.surface }}>
       <div className="w-full max-w-md">
         <div className="bg-white rounded-2xl shadow-xl p-8 md:p-10">
           {/* Logo/Header */}
@@ -49,7 +50,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
             >
               <Lock className="w-8 h-8" style={{ color: corporateTheme.primary }} />
             </div>
-            <h1 className="text-3xl font-bold mb-2" style={{ color: corporateTheme.textMain }}>Infographify</h1>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: corporateTheme.textMain }}>InfoPage AI</h1>
             <p style={{ color: corporateTheme.textLight }}>Please sign in to continue</p>
           </div>
 
@@ -150,6 +151,11 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               {isLoading ? 'Signing in...' : 'Sign In'}
             </button>
           </form>
+        </div>
+        
+        {/* Prospera Logo */}
+        <div className="mt-16 mb-8 flex justify-center">
+          <ProsperaLogo />
         </div>
       </div>
     </div>

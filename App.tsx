@@ -7,7 +7,9 @@ import { Infographic } from './components/Infographic';
 import { SettingsPage } from './components/SettingsPage';
 import { Login } from './components/Login';
 import { ProsperaLogo } from './components/ProsperaLogo';
-import { Layout, ArrowLeft, Printer, Download, Settings, FileText, DollarSign, Briefcase } from 'lucide-react';
+import { Layout, ArrowLeft, Download, Settings, FileText, DollarSign, Briefcase } from 'lucide-react';
+import jsPDF from 'jspdf';
+import html2canvas from 'html2canvas';
 
 const App: React.FC = () => {
   // Check if we're in dev mode (authentication not required in dev)
@@ -98,8 +100,143 @@ const App: React.FC = () => {
     setError(null);
   };
 
-  const handlePrint = () => {
-    window.print();
+  const handleDownloadPDF = async () => {
+    console.log('Starting PDF generation...');
+    try {
+      // Find the infographic container
+      const element = document.querySelector('.print-container') as HTMLElement;
+      if (!element) {
+        console.error('Infographic container not found');
+        alert('Could not find content to download. Please try again.');
+        return;
+      }
+
+      console.log('Found infographic container, capturing screenshot...');
+      
+      // Standard US Letter size: 8.5" x 11" (612 x 792 points at 72 DPI)
+      const letterWidthInches = 8.5;
+      const letterHeightInches = 11;
+      const letterWidthPoints = letterWidthInches * 72; // 612 points
+      const letterHeightPoints = letterHeightInches * 72; // 792 points
+      
+      // Store original styles
+      const originalWidth = element.style.width;
+      const originalHeight = element.style.height;
+      const originalMaxWidth = element.style.maxWidth;
+      const originalMaxHeight = element.style.maxHeight;
+      
+      // Force element to exact page dimensions for capture
+      element.style.width = `${letterWidthInches}in`;
+      element.style.height = `${letterHeightInches}in`;
+      element.style.maxWidth = `${letterWidthInches}in`;
+      element.style.maxHeight = `${letterHeightInches}in`;
+      
+      // Wait a moment for styles to apply
+      await new Promise(resolve => setTimeout(resolve, 100));
+      
+      // Get actual rendered dimensions
+      const rect = element.getBoundingClientRect();
+      const elementWidth = rect.width;
+      const elementHeight = rect.height;
+      
+      console.log('Element dimensions:', elementWidth, 'x', elementHeight);
+      
+      // Calculate scale factor to match PDF resolution
+      // We want high quality, so use a good scale
+      const scale = 2;
+      const canvasWidth = elementWidth * scale;
+      const canvasHeight = elementHeight * scale;
+      
+      // Capture the element as canvas with proper scaling
+      const canvas = await html2canvas(element, {
+        scale: scale,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        width: elementWidth,
+        height: elementHeight,
+        windowWidth: elementWidth,
+        windowHeight: elementHeight,
+        allowTaint: true,
+        removeContainer: false,
+      });
+
+      console.log('Canvas created, dimensions:', canvas.width, 'x', canvas.height);
+
+      // Restore original styles
+      element.style.width = originalWidth;
+      element.style.height = originalHeight;
+      element.style.maxWidth = originalMaxWidth;
+      element.style.maxHeight = originalMaxHeight;
+
+      // Calculate scaling to fit entire content within page (contain approach - no cropping)
+      const canvasAspect = canvas.width / canvas.height;
+      const pageAspect = letterWidthPoints / letterHeightPoints;
+      
+      let imgWidth: number;
+      let imgHeight: number;
+      let xOffset: number;
+      let yOffset: number;
+      
+      if (canvasAspect > pageAspect) {
+        // Canvas is wider than page - fit to page width, center vertically
+        imgWidth = letterWidthPoints;
+        imgHeight = letterWidthPoints / canvasAspect;
+        xOffset = 0;
+        yOffset = (letterHeightPoints - imgHeight) / 2;
+      } else {
+        // Canvas is taller than page - fit to page height, center horizontally
+        imgHeight = letterHeightPoints;
+        imgWidth = letterHeightPoints * canvasAspect;
+        xOffset = (letterWidthPoints - imgWidth) / 2;
+        yOffset = 0;
+      }
+
+      // Ensure we don't exceed page bounds
+      if (imgWidth > letterWidthPoints) {
+        const scale = letterWidthPoints / imgWidth;
+        imgWidth = letterWidthPoints;
+        imgHeight = imgHeight * scale;
+        xOffset = 0;
+        yOffset = (letterHeightPoints - imgHeight) / 2;
+      }
+      
+      if (imgHeight > letterHeightPoints) {
+        const scale = letterHeightPoints / imgHeight;
+        imgHeight = letterHeightPoints;
+        imgWidth = imgWidth * scale;
+        yOffset = 0;
+        xOffset = (letterWidthPoints - imgWidth) / 2;
+      }
+
+      console.log('Image dimensions for PDF:', imgWidth, 'x', imgHeight);
+      console.log('Image offset:', xOffset, 'x', yOffset);
+
+      // Create PDF in portrait orientation (letter size)
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'pt',
+        format: [letterWidthPoints, letterHeightPoints],
+      });
+
+      // Convert canvas to image
+      const imgData = canvas.toDataURL('image/png', 1.0);
+      console.log('Image data generated, adding to PDF...');
+
+      // Add image to PDF, scaled to fit page with no margins
+      pdf.addImage(imgData, 'PNG', xOffset, yOffset, imgWidth, imgHeight, undefined, 'FAST');
+
+      // Generate filename with timestamp
+      const timestamp = new Date().toISOString().slice(0, 19).replace(/:/g, '-');
+      const filename = `infographic-${timestamp}.pdf`;
+
+      // Save PDF
+      pdf.save(filename);
+      console.log('PDF downloaded successfully:', filename);
+    } catch (error) {
+      console.error('Error generating PDF:', error);
+      alert('Failed to generate PDF. Please try again.');
+    }
   };
 
   const openSettings = () => {
@@ -167,7 +304,7 @@ const App: React.FC = () => {
             }}
           >
             <Layout className="w-6 h-6" />
-            <span className="font-bold text-xl tracking-tight" style={{ color: themeColors.textMain }}>Infographify</span>
+            <span className="font-bold text-xl tracking-tight" style={{ color: themeColors.textMain }}>InfoPage AI</span>
           </div>
           
           <div className="flex items-center gap-3">
@@ -180,7 +317,7 @@ const App: React.FC = () => {
                   New Upload
                 </button>
                 <button 
-                  onClick={handlePrint}
+                  onClick={handleDownloadPDF}
                   className="flex items-center gap-2 text-white text-sm font-medium px-4 py-2 rounded-lg transition-colors shadow-sm"
                   style={{ 
                     backgroundColor: themeColors.primary,
@@ -193,8 +330,8 @@ const App: React.FC = () => {
                     e.currentTarget.style.backgroundColor = themeColors.primary;
                   }}
                 >
-                  <Printer size={16} />
-                  <span className="hidden sm:inline">Print / Save PDF</span>
+                  <Download size={16} />
+                  <span className="hidden sm:inline">Download PDF</span>
                 </button>
               </>
             )}

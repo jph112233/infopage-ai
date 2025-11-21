@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Loader2, Sparkles } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const MESSAGES = [
   "Reading PDF content...",
@@ -47,17 +47,6 @@ export const LoadingScreen: React.FC = () => {
       <p className="text-gray-500 text-lg min-h-[2rem] transition-opacity duration-300">
         {MESSAGES[messageIndex]}
       </p>
-      
-      <div 
-        className="mt-8 flex items-center gap-2 text-sm font-medium px-4 py-2 rounded-full"
-        style={{ 
-          color: corporateTheme.primary,
-          backgroundColor: corporateTheme.surface
-        }}
-      >
-        <Sparkles size={16} />
-        <span>Powered by Gemini 2.5 Flash</span>
-      </div>
     </div>
   );
 };

@@ -96,6 +96,7 @@ Rules:
 6. Extract 4-5 bullet points of key takeaways.
 7. Find a powerful quote from the text or synthesize a summary quote.
 8. Identify 3-4 main topics or keywords.
+9. You must use the entire page.
 
 ${BASE_JSON_INSTRUCTION}
 
@@ -167,7 +168,7 @@ export const analyzeDocument = async (
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": window.location.origin,
-        "X-Title": "Infographify",
+        "X-Title": "InfoPage AI",
       },
       body: JSON.stringify({
         model: model,
@@ -263,7 +264,7 @@ ${BASE_JSON_INSTRUCTION}`;
         "Authorization": `Bearer ${apiKey}`,
         "Content-Type": "application/json",
         "HTTP-Referer": window.location.origin,
-        "X-Title": "Infographify",
+        "X-Title": "InfoPage AI",
       },
       body: JSON.stringify({
         model: model,

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Palette, Check, Bot, Cpu, RotateCcw, Info, FileText, DollarSign, Briefcase } from 'lucide-react';
-import { AppSettings, ColorTheme, InfographicType } from '../types';
+import { ArrowLeft, Bot, Cpu, RotateCcw, Info, FileText, DollarSign, Briefcase } from 'lucide-react';
+import { AppSettings, InfographicType } from '../types';
 import { DEFAULT_PROMPTS } from '../services/openRouterService';
 
 interface SettingsPageProps {
@@ -8,23 +8,6 @@ interface SettingsPageProps {
   onSave: (newSettings: AppSettings) => void;
   onBack: () => void;
 }
-
-interface ThemeOption {
-  id: ColorTheme;
-  label: string;
-  color: string;
-  ring: string;
-  customHex?: string;
-}
-
-const THEMES: ThemeOption[] = [
-  { id: 'corporate', label: 'Corporate (New)', color: 'bg-gray-900', ring: 'ring-gray-900', customHex: '#09122B' },
-  { id: 'indigo', label: 'Indigo Classic', color: 'bg-indigo-600', ring: 'ring-indigo-600' },
-  { id: 'emerald', label: 'Emerald Nature', color: 'bg-emerald-600', ring: 'ring-emerald-600' },
-  { id: 'rose', label: 'Rose Elegant', color: 'bg-rose-600', ring: 'ring-rose-600' },
-  { id: 'amber', label: 'Amber Warmth', color: 'bg-amber-600', ring: 'ring-amber-600' },
-  { id: 'slate', label: 'Slate Professional', color: 'bg-slate-600', ring: 'ring-slate-600' },
-];
 
 const AI_MODELS = [
   { id: 'google/gemini-2.5-flash', name: 'Gemini 2.5 Flash', desc: 'Balanced speed and quality (Default)' },
@@ -72,47 +55,6 @@ export const SettingsPage: React.FC<SettingsPageProps> = ({ settings, onSave, on
       </div>
 
       <div className="space-y-8">
-        {/* Theme Section */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
-          <div className="p-6 md:p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <div className="p-2 bg-indigo-50 rounded-lg text-indigo-600">
-                <Palette size={24} />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-gray-900">Appearance</h2>
-                <p className="text-gray-500 text-sm">Customize how your infographic looks</p>
-              </div>
-            </div>
-
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-4">
-              {THEMES.map((theme) => (
-                <button
-                  key={theme.id}
-                  onClick={() => handleChange('theme', theme.id)}
-                  className={`relative group flex flex-col items-center gap-3 p-4 rounded-xl border-2 transition-all duration-200 ${
-                    settings.theme === theme.id
-                      ? `border-gray-200 bg-gray-50 ${theme.ring} ring-2 ring-offset-2`
-                      : 'border-transparent hover:bg-gray-50 hover:border-gray-200'
-                  }`}
-                >
-                  <div 
-                    className={`w-12 h-12 rounded-full shadow-sm ${theme.color} flex items-center justify-center`}
-                    style={theme.customHex ? { backgroundColor: theme.customHex } : undefined}
-                  >
-                    {settings.theme === theme.id && (
-                      <Check size={20} className="text-white" />
-                    )}
-                  </div>
-                  <span className={`text-sm font-medium ${settings.theme === theme.id ? 'text-gray-900' : 'text-gray-500'}`}>
-                    {theme.label.split(' ')[0]}
-                  </span>
-                </button>
-              ))}
-            </div>
-          </div>
-        </div>
-
         {/* AI Configuration Section */}
         <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
           <div className="p-6 md:p-8 border-b border-gray-100">
